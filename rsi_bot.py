@@ -29,7 +29,27 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "✅ RSI Bot is online and monitoring."
+    return """
+    <html>
+        <head>
+            <title>RSI Bot Status</title>
+            <style>
+                body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 40px; }
+                .status-box { background: white; padding: 20px; max-width: 500px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                .status { font-size: 24px; color: green; }
+            </style>
+        </head>
+        <body>
+            <div class="status-box">
+                <h2>📊 RSI Bot Status</h2>
+                <p class="status">✅ Online and monitoring signals</p>
+                <p>Tracking symbols: {}</p>
+                <p>Check interval: Every 3 minutes</p>
+            </div>
+        </body>
+    </html>
+    """.format(", ".join(SYMBOLS))
+
 
 def fetch_ohlcv(symbol):
     url = f"{BINANCE_URL}?symbol={symbol}&interval={INTERVAL}&limit={LIMIT}"
