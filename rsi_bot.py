@@ -65,23 +65,18 @@ def check_signals():
 
             current_rsi = df["rsi"].iloc[-1]
             current_price = df["close"].iloc[-1]
-            ema = df["ema"].iloc[-1]
 
-            message = None
-
+            # Only send message when a signal is triggered
             if current_rsi <= 30:
                 message = f"🟢 RSI BUY Signal\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≤30)"
+                send_telegram_message(message)
             elif current_rsi >= 70:
                 message = f"🔴 RSI SELL Signal\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≥70)"
-            else:
-                message = f"ℹ️ No Signal\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f}"
-
-            send_telegram_message(message)
-
-
+                send_telegram_message(message)
 
         except Exception as e:
             print(f"❌ Error processing {symbol}: {e}")
+
 
 def bot_loop():
     while True:
