@@ -1,3 +1,5 @@
 requests
 pandas
+schedule
 ta
+python-dotenv
