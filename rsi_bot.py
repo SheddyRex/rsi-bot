@@ -70,12 +70,14 @@ def check_signals():
             message = None
 
             if current_rsi <= 30:
-                message = f"🟢 RSI BUY Signal\n{symbol} @ ${current_price:.2f}\nRSI: {current_rsi:.2f}"
+            message = f"🟢 *RSI BUY Signal*\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≤30)"
             elif current_rsi >= 70:
-                message = f"🔴 RSI SELL Signal\n{symbol} @ ${current_price:.2f}\nRSI: {current_rsi:.2f}"
+            message = f"🔴 *RSI SELL Signal*\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≥70)"
+            else:
+            message = f"ℹ️ *No Signal*\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f}"
 
-            if message:
-                send_telegram_message(message)
+            send_telegram_message(message)
+
 
         except Exception as e:
             print(f"❌ Error processing {symbol}: {e}")
