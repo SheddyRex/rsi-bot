@@ -6,25 +6,12 @@ from ta.momentum import RSIIndicator
 from ta.trend import EMAIndicator
 from dotenv import load_dotenv
 from flask import Flask
-import threading
-
-app = Flask(__name__)
-
-@app.route('/')
-def status():
-    return '✅ RSI Bot is running'
-
-def run_flask():
-    app.run(host='0.0.0.0', port=8080)
-
 
 load_dotenv()
-
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-# List of popular, highly-liquid crypto symbols (USDT pairs)
 SYMBOLS = [
     "BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT",
     "DOGEUSDT", "ADAUSDT", "MATICUSDT", "LTCUSDT", "AVAXUSDT"
@@ -32,10 +19,17 @@ SYMBOLS = [
 
 RSI_PERIOD = 14
 EMA_PERIOD = 200
-INTERVAL = "4h"  # Binance interval (e.g., "15m", "1h", "4h")
-LIMIT = 210      # At least 200 for EMA + buffer
+INTERVAL = "4h"
+LIMIT = 210
 
 BINANCE_URL = "https://api.binance.com/api/v3/klines"
+
+# Flask web server for status
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "✅ RSI Bot is online and monitoring."
 
 def fetch_ohlcv(symbol):
     url = f"{BINANCE_URL}?symbol={symbol}&interval={INTERVAL}&limit={LIMIT}"
@@ -72,10 +66,10 @@ def check_signals():
 
             message = None
 
-            if current_rsi <= 50:
-                message = f"🟢 *RSI BUY Signal*\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≤30)"
-            elif current_rsi >= 50:
-                message = f"🔴 *RSI SELL Signal*\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≥70)"
+            if current_rsi <= 30:
+                message = f"🟢 RSI BUY Signal\n{symbol} @ ${current_price:.2f}\nRSI: {current_rsi:.2f}"
+            elif current_rsi >= 70:
+                message = f"🔴 RSI SELL Signal\n{symbol} @ ${current_price:.2f}\nRSI: {current_rsi:.2f}"
 
             if message:
                 send_telegram_message(message)
@@ -83,15 +77,17 @@ def check_signals():
         except Exception as e:
             print(f"❌ Error processing {symbol}: {e}")
 
-def main_loop():
+def bot_loop():
     while True:
         check_signals()
-        print("✅ Done. Waiting 15 minutes...\n")
-        time.sleep(900)  # 15 minutes
+        print("✅ Done. Waiting 3 minutes...\n")
+        time.sleep(180)
 
 if __name__ == "__main__":
-    flask_thread = threading.Thread(target=run_flask)
-    flask_thread.start()
+    import threading
 
-    # Run RSI bot loop
-    main_loop()
+    # Run bot in a background thread
+    threading.Thread(target=bot_loop, daemon=True).start()
+
+    # Run Flask web server
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
