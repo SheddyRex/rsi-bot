@@ -44,7 +44,7 @@ def home():
                 <h2>📊 RSI Bot Status</h2>
                 <p class="status">✅ Online and monitoring signals</p>
                 <p>Tracking symbols: {}</p>
-                <p>Check interval: Every 3 minutes</p>
+                <p>Check interval: Every 10 minutes</p>
             </div>
         </body>
     </html>
