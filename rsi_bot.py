@@ -101,8 +101,8 @@ def check_signals():
 def bot_loop():
     while True:
         check_signals()
-        print("✅ Done. Waiting 3 minutes...\n")
-        time.sleep(180)
+        print("✅ Done. Waiting 10 minutes...\n")
+        time.sleep(600)
 
 if __name__ == "__main__":
     import threading
