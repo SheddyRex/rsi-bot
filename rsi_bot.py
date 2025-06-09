@@ -48,7 +48,7 @@ def home():
             </div>
         </body>
     </html>
-    """
+    """.format(", ".join(SYMBOLS))
 
 
 def fetch_ohlcv(symbol):
