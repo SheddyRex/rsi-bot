@@ -88,6 +88,7 @@ def bot_loop():
 
 if __name__ == "__main__":
     import threading
+    send_telegram_message("🧪 Telegram test message from RSI bot!")
 
     # Run bot in a background thread
     threading.Thread(target=bot_loop, daemon=True).start()
