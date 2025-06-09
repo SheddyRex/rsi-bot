@@ -74,7 +74,7 @@ def check_signals():
 def main_loop():
     while True:
         check_signals()
-        print("✅ Done. Waiting 15 minutes...\n")
+        print("✅ Done. Waiting 1 minute...\n")
         time.sleep(60)  # 1 minutes for testing instead of 900 which is 15mins
 
 if __name__ == "__main__":
