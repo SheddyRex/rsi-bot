@@ -60,9 +60,9 @@ def check_signals():
 
             message = None
 
-            if current_rsi <= 30:
+            if current_rsi <= 50:
                 message = f"🟢 *RSI BUY Signal*\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≤30)"
-            elif current_rsi >= 70:
+            elif current_rsi >= 50:
                 message = f"🔴 *RSI SELL Signal*\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≥70)"
 
             if message:
@@ -75,7 +75,7 @@ def main_loop():
     while True:
         check_signals()
         print("✅ Done. Waiting 1 minute...\n")
-        time.sleep(60)  # 1 minutes for testing instead of 900 which is 15mins
+        time.sleep(900)  # 1 minutes for testing instead of 900 which is 15mins
 
 if __name__ == "__main__":
     main_loop()
