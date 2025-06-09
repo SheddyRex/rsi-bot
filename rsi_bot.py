@@ -5,6 +5,18 @@ import os
 from ta.momentum import RSIIndicator
 from ta.trend import EMAIndicator
 from dotenv import load_dotenv
+from flask import Flask
+import threading
+
+app = Flask(__name__)
+
+@app.route('/')
+def status():
+    return '✅ RSI Bot is running'
+
+def run_flask():
+    app.run(host='0.0.0.0', port=8080)
+
 
 load_dotenv()
 
@@ -76,5 +88,10 @@ def main_loop():
         check_signals()
         print("✅ Done. Waiting 15 minutes...\n")
         time.sleep(900)  # 15 minutes
+
 if __name__ == "__main__":
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+
+    # Run RSI bot loop
     main_loop()
