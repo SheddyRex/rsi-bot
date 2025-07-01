@@ -12,15 +12,18 @@ load_dotenv()
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
+# Expanded MEME COINS list (verified on Binance)
 SYMBOLS = [
-    "BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT",
-    "DOGEUSDT", "ADAUSDT", "MATICUSDT", "LTCUSDT", "AVAXUSDT"
+    "DOGEUSDT", "SHIBUSDT", "PEPEUSDT", "FLOKIUSDT",
+    "BONKUSDT", "1000SATSUSDT", "1000FLOKIUSDT", "1000SHIBUSDT",
+    "1000PEPEUSDT", "WIFUSDT", "MEMEUSDT"
 ]
 
-RSI_PERIOD = 14
-EMA_PERIOD = 200
-INTERVAL = "4h"
-LIMIT = 210
+# Adjusted indicators for faster meme coin signals
+RSI_PERIOD = 7
+EMA_PERIOD = 50
+INTERVAL = "15m"
+LIMIT = 100
 
 BINANCE_URL = "https://api.binance.com/api/v3/klines"
 
@@ -29,27 +32,26 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return """
+    return f"""
     <html>
         <head>
-            <title>RSI Bot Status</title>
+            <title>RSI Meme Bot Status</title>
             <style>
-                body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 40px; }
-                .status-box { background: white; padding: 20px; max-width: 500px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-                .status { font-size: 24px; color: green; }
+                body {{ font-family: Arial, sans-serif; background: #f4f4f4; padding: 40px; }}
+                .status-box {{ background: white; padding: 20px; max-width: 500px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
+                .status {{ font-size: 24px; color: green; }}
             </style>
         </head>
         <body>
             <div class="status-box">
-                <h2>📊 RSI Bot Status</h2>
-                <p class="status">✅ Online and monitoring signals</p>
-                <p>Tracking symbols: {}</p>
-                <p>Check interval: Every 10 minutes</p>
+                <h2>🐶 RSI Meme Bot Status</h2>
+                <p class="status">✅ Online and scanning meme coins</p>
+                <p>Tracking symbols: {', '.join(SYMBOLS)}</p>
+                <p>Check interval: Every 5 minutes (15m candles)</p>
             </div>
         </body>
     </html>
     """
-
 
 def fetch_ohlcv(symbol):
     url = f"{BINANCE_URL}?symbol={symbol}&interval={INTERVAL}&limit={LIMIT}"
@@ -72,12 +74,10 @@ def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     data = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
     requests.post(url, data=data)
-    
-    print(f"Sending to {TELEGRAM_CHAT_ID} using token {TELEGRAM_TOKEN[:10]}***")
-
+    print(f"🚀 Sent to Telegram: {message}")
 
 def check_signals():
-    print("🔄 Checking RSI conditions...")
+    print("🔍 Checking RSI/EMA signals for meme coins...")
     for symbol in SYMBOLS:
         try:
             df = fetch_ohlcv(symbol)
@@ -85,30 +85,40 @@ def check_signals():
 
             current_rsi = df["rsi"].iloc[-1]
             current_price = df["close"].iloc[-1]
+            current_ema = df["ema"].iloc[-1]
 
-            # Only send message when a signal is triggered
-            if current_rsi <= 30:
-                message = f"🟢 RSI BUY Signal\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≤30)"
+            # BUY: Strong oversold & above EMA trend
+            if current_rsi <= 25 and current_price > current_ema:
+                message = (f"🟢 MEME BUY SIGNAL\n"
+                           f"Symbol: {symbol}\n"
+                           f"Price: ${current_price:.5f}\n"
+                           f"RSI: {current_rsi:.2f} (≤25)\n"
+                           f"EMA({EMA_PERIOD}): ${current_ema:.5f}")
                 send_telegram_message(message)
-            elif current_rsi >= 70:
-                message = f"🔴 RSI SELL Signal\nSymbol: {symbol}\nPrice: ${current_price:.2f}\nRSI: {current_rsi:.2f} (≥70)"
+
+            # SELL: Strong overbought & below EMA trend
+            elif current_rsi >= 75 and current_price < current_ema:
+                message = (f"🔴 MEME SELL SIGNAL\n"
+                           f"Symbol: {symbol}\n"
+                           f"Price: ${current_price:.5f}\n"
+                           f"RSI: {current_rsi:.2f} (≥75)\n"
+                           f"EMA({EMA_PERIOD}): ${current_ema:.5f}")
                 send_telegram_message(message)
 
         except Exception as e:
-            print(f"❌ Error processing {symbol}: {e}")
-
+            print(f"❌ Error with {symbol}: {e}")
 
 def bot_loop():
     while True:
         check_signals()
-        print("✅ Done. Waiting 10 minutes...\n")
-        time.sleep(600)
+        print("✅ Done. Waiting 5 minutes...\n")
+        time.sleep(300)  # 5 minutes
 
 if __name__ == "__main__":
     import threading
-    send_telegram_message("🧪 Telegram test message from RSI bot!")
+    send_telegram_message("🚀 Meme Bot started and connected to Telegram!")
 
-    # Run bot in a background thread
+    # Start bot in a background thread
     threading.Thread(target=bot_loop, daemon=True).start()
 
     # Run Flask web server
